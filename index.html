@@ -16,6 +16,7 @@
       .print-only { display: block !important; }
       body { background-color: white !important; }
       .table-header { background-color: #166534 !important; color: white !important; -webkit-print-color-adjust: exact; }
+      tr:nth-child(even) { background-color: #f0fdf4 !important; -webkit-print-color-adjust: exact; }
     }
     
     .loading-spinner {
@@ -34,14 +35,14 @@
     </div>
     <h1 class="text-3xl font-bold text-yellow-300">MASJID AL FALAH</h1>
     <p class="text-xl font-semibold">Daftar Warga Pemberi Takjil Ramadhan</p>
-    <p class="mt-2 text-sm bg-green-800 text-white inline-block px-4 py-1 rounded-full">1447 H / 2026 M</p>
+    <p class="mt-2 text-sm bg-green-800 text-white inline-block px-4 py-1 rounded-full">1447 H | 2026 M</p>
   </header>
 
   <div class="hidden print-only text-center my-6">
     <h1 class="text-2xl font-bold text-green-900">MASJID AL FALAH</h1>
-    <h2 class="text-lg font-bold" id="printTitle">LAPORAN DAFTAR TAKJIL</h2>
-    <p class="text-sm">Ramadhan 1447 H / 2026 M</p>
-    <hr class="border-t-2 border-black mt-2">
+    <h2 class="text-lg font-bold">Daftar Warga Pemberi Takjil Ramadhan 1447 H | 2026 M</h2>
+    <p class="text-md mt-1 font-semibold" id="printFilterDesc">Wilayah: Semua RT/RW</p>
+    <hr class="border-t-2 border-black mt-3">
   </div>
 
   <main class="max-w-7xl mx-auto p-4 md:p-6">
@@ -61,15 +62,9 @@
         </div>
 
         <div class="flex gap-2 w-full md:w-auto flex-wrap">
-          <button id="addButton" class="flex-1 md:px-6 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg font-bold shadow-md transition-all">
-            + Tambah
-          </button>
-          <button id="excelBtn" class="flex-1 md:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md transition-all">
-            📊 Excel
-          </button>
-          <button id="printBtn" class="flex-1 md:px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-md transition-all">
-            🖨️ Print
-          </button>
+          <button id="addButton" class="flex-1 md:px-6 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg font-bold shadow-md">+ Tambah</button>
+          <button id="excelBtn" class="flex-1 md:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md">📊 Excel</button>
+          <button id="printBtn" class="flex-1 md:px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-md">🖨️ Print</button>
         </div>
       </div>
 
@@ -81,10 +76,10 @@
             <input type="date" id="inputTanggal" class="w-full px-3 py-2 border rounded-lg bg-gray-100 outline-none" readonly>
             <p class="text-[10px] text-red-600 mt-1 italic font-semibold">Tanggal pelaksanaan akan diatur Takmir Al Falah</p>
           </div>
-          <div><label class="block text-sm font-semibold mb-1 text-red-600">Nama *</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none"></div>
-          <div><label class="block text-sm font-semibold mb-1 text-red-600">Blok *</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none"></div>
-          <div><label class="block text-sm font-semibold mb-1 text-red-600">RT/RW *</label>
-            <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+          <div><label class="block text-sm font-semibold mb-1">Nama:</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+          <div><label class="block text-sm font-semibold mb-1">Blok:</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+          <div><label class="block text-sm font-semibold mb-1">RT/RW:</label>
+            <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg">
                 <option value="RT 1 RW 9">RT 1 RW 9</option><option value="RT 2 RW 9">RT 2 RW 9</option>
                 <option value="RT 3 RW 9">RT 3 RW 9</option><option value="RT 4 RW 9">RT 4 RW 9</option>
                 <option value="RT 5 RW 9">RT 5 RW 9</option><option value="RT 1 RW 10">RT 1 RW 10</option>
@@ -93,22 +88,22 @@
             </select>
           </div>
           <div class="md:col-span-2">
-            <label class="block text-sm font-semibold mb-1 text-red-600">Jenis Takjil *</label>
+            <label class="block text-sm font-semibold mb-1">Jenis Takjil:</label>
             <div class="flex gap-8 p-2 bg-white rounded-lg border">
-              <label class="flex items-center cursor-pointer font-medium"><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2 w-4 h-4 text-green-600"> Mamiri</label>
-              <label class="flex items-center cursor-pointer font-medium"><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2 w-4 h-4 text-green-600"> Mamirat</label>
+              <label class="flex items-center cursor-pointer font-medium"><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2"> Mamiri</label>
+              <label class="flex items-center cursor-pointer font-medium"><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2"> Mamirat</label>
             </div>
           </div>
         </div>
         <div class="mt-6 flex gap-3">
-          <button id="saveButton" class="flex-1 bg-green-700 text-white py-3 rounded-lg font-bold hover:bg-green-800 transition">SIMPAN DATA</button>
-          <button id="cancelButton" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-bold hover:bg-gray-500 transition">BATAL</button>
+          <button id="saveButton" class="flex-1 bg-green-700 text-white py-3 rounded-lg font-bold">SIMPAN DATA</button>
+          <button id="cancelButton" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-bold">BATAL</button>
         </div>
       </div>
 
       <div id="loadingState" class="text-center py-10 no-print">
         <div class="loading-spinner mx-auto mb-2"></div>
-        <p class="text-gray-500 italic">Memuat data...</p>
+        <p class="text-gray-500">Memuat data...</p>
       </div>
 
       <div id="tableContainer" class="hidden overflow-x-auto">
@@ -162,8 +157,8 @@
           <td class="px-4 py-3 italic border">${item.jenis}</td>
           <td class="px-4 py-3 border text-sm">${item.rtrw}</td>
           <td class="px-4 py-3 text-center border no-print">
-            <button onclick="editRow(${i})" class="text-blue-600 font-bold mr-2">Edit</button>
-            <button onclick="deleteRow(${i})" class="text-red-600 font-bold">Hapus</button>
+            <button onclick="editRow(${i})" class="text-blue-600 font-bold mr-2 hover:underline">Edit</button>
+            <button onclick="deleteRow(${i})" class="text-red-600 font-bold hover:underline">Hapus</button>
           </td>`;
         tbody.appendChild(tr);
       });
@@ -192,14 +187,17 @@
       } catch (err) { alert("Data gagal dimuat."); }
     }
 
-    // EXCEL EXPORT (VERSI BERSIH TANPA KOLOM AKSI)
+    // EXCEL EXPORT DENGAN HEADER SESUAI PERMINTAAN
     document.getElementById('excelBtn').onclick = () => {
-      const filterVal = document.getElementById('filterRtRw').value;
-      const fileName = `Takjil_AlFalah_${filterVal.replace(/ /g, '_')}_${new Date().getTime()}.xls`;
+      const rtVal = document.getElementById('filterRtRw').value;
+      const wilayahText = rtVal === 'all' ? "Semua RT/RW" : rtVal;
       
-      // Buat tabel sementara di memori
       let excelContent = `
         <table border="1">
+          <tr><th colspan="5" style="font-size: 16pt; text-align: center;">MASJID AL FALAH</th></tr>
+          <tr><th colspan="5" style="font-size: 12pt; text-align: center;">Daftar Warga Pemberi Takjil Ramadhan 1447 H | 2026 M</th></tr>
+          <tr><th colspan="5" style="font-size: 10pt; text-align: center;">Wilayah: ${wilayahText}</th></tr>
+          <tr><td colspan="5"></td></tr>
           <tr style="background-color: #166534; color: white; font-weight: bold;">
             <th>Tanggal</th>
             <th>Nama</th>
@@ -209,32 +207,22 @@
           </tr>
       `;
 
-      // Masukkan data dari filteredData (Data yang tampil di layar saja)
       filteredData.forEach(item => {
-        excelContent += `
-          <tr>
-            <td>${item.tanggal}</td>
-            <td>${item.nama}</td>
-            <td>${item.blok}</td>
-            <td>${item.jenis}</td>
-            <td>${item.rtrw}</td>
-          </tr>
-        `;
+        excelContent += `<tr><td>${item.tanggal}</td><td>${item.nama}</td><td>${item.blok}</td><td>${item.jenis}</td><td>${item.rtrw}</td></tr>`;
       });
 
       excelContent += "</table>";
-
       const url = 'data:application/vnd.ms-excel,' + encodeURIComponent(excelContent);
       const link = document.createElement('a');
-      link.download = fileName;
+      link.download = `Takjil_AlFalah_${wilayahText.replace(/ /g, '_')}.xls`;
       link.href = url;
       link.click();
     };
 
-    // PRINT
+    // PRINT DENGAN HEADER SESUAI PERMINTAAN
     document.getElementById('printBtn').onclick = () => {
       const rt = document.getElementById('filterRtRw').value;
-      document.getElementById('printTitle').innerText = rt === 'all' ? "REKAP TAKJIL - SEMUA RT" : `REKAP TAKJIL - ${rt}`;
+      document.getElementById('printFilterDesc').innerText = rt === 'all' ? "Wilayah: Semua RT/RW" : `Wilayah: ${rt}`;
       window.print();
     };
 
@@ -287,7 +275,6 @@
 
     document.getElementById('addButton').onclick = () => {
       editingIndex = -1;
-      document.getElementById('formTitle').textContent = "INPUT DATA TAKJIL";
       document.getElementById('inputTanggal').value = new Date().toISOString().split('T')[0];
       document.getElementById('formContainer').classList.remove('hidden');
     };

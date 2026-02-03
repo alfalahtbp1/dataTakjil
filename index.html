@@ -3,48 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Takjil Ramadhan - Masjid Al Falah</title>
+  <title>Daftar Takjil - Masjid Al Falah</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.autotable.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Poppins', sans-serif; }
     .gradient-header { background: linear-gradient(to right, #166534, #86efac, #166534); }
     .table-header { background-color: #166534; color: white; }
-    .loading-spinner {
-      width: 40px; height: 40px; border: 4px solid #f3f3f3;
-      border-top: 4px solid #166534; border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @media print { .no-print { display: none; } }
   </style>
 </head>
 <body class="bg-green-50 min-h-screen">
   
-  <header class="gradient-header py-8 px-4 text-center shadow-md text-white">
+  <header class="gradient-header py-8 px-4 text-center shadow-md text-white no-print">
     <div class="flex justify-center mb-3">
-      <img src="https://i.ibb.co.com/JjZqzhR2/logo-al-falah.png" alt="Logo" class="h-28 w-28 object-contain">
+      <img src="https://i.ibb.co.com/JjZqzhR2/logo-al-falah.png" alt="Logo" class="h-24 w-24 object-contain">
     </div>
     <h1 class="text-3xl font-bold text-yellow-300">MASJID AL FALAH</h1>
     <p class="text-xl">Daftar Warga Pemberi Takjil Ramadhan</p>
+    <p class="mt-2 text-sm bg-green-800 text-white inline-block px-4 py-1 rounded-full">1447 H / 2026 M</p>
   </header>
 
-  <main class="max-w-7xl mx-auto p-6">
+  <main class="max-w-7xl mx-auto p-4 md:p-6">
     <div class="bg-white rounded-xl shadow-xl p-6">
       
-      <div class="flex flex-wrap gap-4 mb-6 justify-between items-center">
-        <input type="text" id="searchInput" placeholder="Cari nama/blok..." class="px-4 py-2 border rounded-lg w-64 focus:ring-2 focus:ring-green-500 outline-none">
-        <button id="addButton" class="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded-lg font-bold">+ Tambah Data</button>
+      <div class="flex flex-wrap gap-4 mb-6 justify-between items-center no-print">
+        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+          <input type="text" id="searchInput" placeholder="Cari nama..." class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none w-full md:w-48">
+          
+          <select id="filterRtRw" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none w-full md:w-48">
+            <option value="all">Semua RT/RW</option>
+            <option value="RT 1 RW 9">RT 1 RW 9</option>
+            <option value="RT 2 RW 9">RT 2 RW 9</option>
+            <option value="RT 3 RW 9">RT 3 RW 9</option>
+            <option value="RT 4 RW 9">RT 4 RW 9</option>
+            <option value="RT 5 RW 9">RT 5 RW 9</option>
+            <option value="RT 1 RW 10">RT 1 RW 10</option>
+            <option value="RT 2 RW 10">RT 2 RW 10</option>
+            <option value="RT 3 RW 10">RT 3 RW 10</option>
+            <option value="RT 4 RW 10">RT 4 RW 10</option>
+          </select>
+        </div>
+
+        <div class="flex gap-2 w-full md:w-auto">
+          <button id="addButton" class="flex-1 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold transition">+ Tambah Data</button>
+          <button id="pdfButton" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2">
+            Export PDF
+          </button>
+        </div>
       </div>
 
-      <div id="formContainer" class="hidden mb-8 p-6 border-2 border-green-200 rounded-xl bg-green-50">
-        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4">Form Data Takjil</h3>
+      <div id="formContainer" class="hidden mb-8 p-6 border-2 border-green-200 rounded-xl bg-green-50 no-print">
+        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center">Form Input Takjil</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="block text-sm font-semibold mb-1">Tanggal:</label><input type="date" id="inputTanggal" class="w-full px-3 py-2 border rounded-lg bg-gray-100" readonly></div>
-          <div><label class="block text-sm font-semibold mb-1">Nama Lengkap:</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none"></div>
-          <div><label class="block text-sm font-semibold mb-1">Blok/No Rumah:</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none"></div>
+          <div><label class="block text-sm font-semibold mb-1">Nama Lengkap:</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div>
+          <div><label class="block text-sm font-semibold mb-1">Blok/No Rumah:</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div>
           <div>
             <label class="block text-sm font-semibold mb-1">RT/RW:</label>
-            <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+            <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500">
                 <option value="RT 1 RW 9">RT 1 RW 9</option>
                 <option value="RT 2 RW 9">RT 2 RW 9</option>
                 <option value="RT 3 RW 9">RT 3 RW 9</option>
@@ -58,25 +77,32 @@
           </div>
           <div class="md:col-span-2">
             <label class="block text-sm font-semibold mb-1">Jenis Takjil:</label>
-            <div class="flex gap-4">
-              <label><input type="radio" name="jenisTakjil" value="Mamiri"> Mamiri</label>
-              <label><input type="radio" name="jenisTakjil" value="Mamirat"> Mamirat</label>
+            <div class="flex gap-6 p-2 bg-white rounded-lg border">
+              <label class="flex items-center"><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2"> Mamiri</label>
+              <label class="flex items-center"><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2"> Mamirat</label>
             </div>
           </div>
         </div>
         <div class="mt-6 flex gap-3">
-          <button id="saveButton" class="bg-green-700 text-white px-6 py-2 rounded-lg font-bold">Simpan</button>
-          <button id="cancelButton" class="bg-gray-400 text-white px-6 py-2 rounded-lg font-bold">Batal</button>
+          <button id="saveButton" class="flex-1 bg-green-700 text-white py-3 rounded-lg font-bold">Simpan ke Sheets</button>
+          <button id="cancelButton" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-bold">Batal</button>
         </div>
       </div>
 
-      <div id="loadingState" class="text-center py-10">
-        <div class="loading-spinner mx-auto mb-2"></div>
-        <p>Memuat data...</p>
-      </div>
+      <div id="loadingState" class="text-center py-10"><div class="loading-spinner mx-auto mb-2"></div><p>Menghubungkan ke Google Sheets...</p></div>
+      
       <div id="tableContainer" class="hidden overflow-x-auto">
-        <table class="w-full border-collapse">
-          <thead><tr class="table-header"><th class="px-4 py-3 text-left">Tanggal</th><th class="px-4 py-3 text-left">Nama</th><th class="px-4 py-3 text-left">Blok</th><th class="px-4 py-3 text-left">Jenis</th><th class="px-4 py-3 text-left">RT/RW</th><th class="px-4 py-3 text-center">Aksi</th></tr></thead>
+        <table id="mainTable" class="w-full border-collapse">
+          <thead>
+            <tr class="table-header">
+              <th class="px-4 py-3 text-left">Tanggal</th>
+              <th class="px-4 py-3 text-left">Nama</th>
+              <th class="px-4 py-3 text-left">Blok</th>
+              <th class="px-4 py-3 text-left">Jenis</th>
+              <th class="px-4 py-3 text-left">RT/RW</th>
+              <th class="px-4 py-3 text-center no-print">Aksi</th>
+            </tr>
+          </thead>
           <tbody id="tableBody"></tbody>
         </table>
       </div>
@@ -85,16 +111,16 @@
   </main>
 
   <script>
-    // 1. Konfigurasi
+    // KONFIGURASI
     const SPREADSHEET_ID = "1YjcZeGWDWspuosBjy3VmQDtJHZ64Gbaez3WgHiWuiCQ";
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwa2-28NKYprf_OTtA_OQnuqmyTFZeoMR9g8Fh1WtRnUcyrm1gGWxDiIFiVapblnKA/exec"; // Ganti dengan URL .gs Anda!
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwa2-28NKYprf_OTtA_OQnuqmyTFZeoMR9g8Fh1WtRnUcyrm1gGWxDiIFiVapblnKA/exec"; 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`;
 
     let allData = [];
     let filteredData = [];
     let editingIndex = -1;
 
-    // 2. Fungsi Utama UI
+    // RENDER TABEL
     const renderTable = () => {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
@@ -102,25 +128,23 @@
         const tr = document.createElement('tr');
         tr.className = i % 2 === 0 ? 'bg-white border-b' : 'bg-green-50 border-b';
         tr.innerHTML = `
-          <td class="px-4 py-3">${item.tanggal}</td>
+          <td class="px-4 py-3 text-sm">${item.tanggal}</td>
           <td class="px-4 py-3 font-bold text-green-900">${item.nama}</td>
-          <td class="px-4 py-3">${item.blok}</td>
-          <td class="px-4 py-3">${item.jenis}</td>
-          <td class="px-4 py-3">${item.rtrw}</td>
-          <td class="px-4 py-3 text-center">
+          <td class="px-4 py-3 text-sm">${item.blok}</td>
+          <td class="px-4 py-3 italic">${item.jenis}</td>
+          <td class="px-4 py-3 text-sm">${item.rtrw}</td>
+          <td class="px-4 py-3 text-center no-print">
             <button onclick="editRow(${i})" class="text-blue-600 font-bold mr-2">Edit</button>
             <button onclick="deleteRow(${i})" class="text-red-600 font-bold">Hapus</button>
-          </td>
-        `;
+          </td>`;
         tbody.appendChild(tr);
       });
     };
 
-    // 3. Fungsi Ambil Data
+    // LOAD DATA DARI SHEETS
     async function loadData() {
       try {
         const response = await fetch(`${CSV_URL}&cb=${Date.now()}`);
-        if (!response.ok) throw new Error("Gagal mengambil CSV");
         const text = await response.text();
         const rows = text.split('\n').slice(1);
         
@@ -141,12 +165,55 @@
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('tableContainer').classList.remove('hidden');
       } catch (err) {
-        console.error(err);
-        document.getElementById('loadingState').innerHTML = `<p class="text-red-500 font-bold">Gagal memuat data!</p>`;
+        document.getElementById('loadingState').innerHTML = `<p class="text-red-500 font-bold">Koneksi Gagal! Periksa Internet Anda.</p>`;
       }
     }
 
-    // 4. Fitur CRUD
+    // FUNGSI PDF
+    document.getElementById('pdfButton').onclick = function() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      const filterValue = document.getElementById('filterRtRw').value;
+      const titleText = filterValue === 'all' ? "REKAP TAKJIL - SEMUA RT/RW" : `REKAP TAKJIL - ${filterValue}`;
+
+      doc.setFontSize(16);
+      doc.text("MASJID AL FALAH", 105, 15, { align: 'center' });
+      doc.setFontSize(12);
+      doc.text(titleText, 105, 22, { align: 'center' });
+      doc.text("Ramadhan 1447 H / 2026 M", 105, 28, { align: 'center' });
+
+      const tableRows = filteredData.map(item => [item.tanggal, item.nama, item.blok, item.jenis, item.rtrw]);
+      
+      doc.autoTable({
+        startY: 35,
+        head: [['Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [22, 101, 52] },
+        styles: { fontSize: 9 }
+      });
+
+      doc.save(`Takjil_AlFalah_${filterValue.replace(/ /g, '_')}.pdf`);
+    };
+
+    // FILTER & SEARCH
+    function applyFilters() {
+      const searchVal = document.getElementById('searchInput').value.toLowerCase();
+      const rtVal = document.getElementById('filterRtRw').value;
+
+      filteredData = allData.filter(d => {
+        const matchSearch = d.nama.toLowerCase().includes(searchVal) || d.blok.toLowerCase().includes(searchVal);
+        const matchRt = rtVal === 'all' || d.rtrw === rtVal;
+        return matchSearch && matchRt;
+      });
+      renderTable();
+    }
+
+    document.getElementById('searchInput').oninput = applyFilters;
+    document.getElementById('filterRtRw').onchange = applyFilters;
+
+    // SIMPAN DATA (CREATE / UPDATE)
     document.getElementById('saveButton').onclick = async function() {
       const jenis = document.querySelector('input[name="jenisTakjil"]:checked')?.value;
       const data = {
@@ -157,22 +224,33 @@
         rtrw: document.getElementById('inputRtRw').value
       };
 
-      if(!data.nama || !data.jenis) return alert("Isi Nama & Jenis!");
+      if(!data.nama || !data.jenis) return alert("Nama dan Jenis Takjil harus diisi!");
       
-      this.disabled = true; this.textContent = "Menyimpan...";
+      const btn = this;
+      btn.disabled = true; btn.textContent = "Menyimpan...";
+      
       const action = editingIndex >= 0 ? 'update' : 'create';
       const rowIndex = editingIndex >= 0 ? filteredData[editingIndex].rowIdx : null;
 
       try {
-        const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action, data, rowIndex }) });
-        const res = await resp.json();
-        if(res.result === 'success') location.reload();
-      } catch (e) { alert("Error simpan!"); this.disabled = false; this.textContent = "Simpan"; }
+        const resp = await fetch(SCRIPT_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({ action, data, rowIndex }) 
+        });
+        if(resp.ok) {
+           alert("Data Berhasil Disimpan!");
+           location.reload();
+        }
+      } catch (e) { 
+        alert("Gagal Terhubung ke Server!"); 
+        btn.disabled = false; btn.textContent = "Simpan ke Sheets"; 
+      }
     };
 
-    window.editRow = (idx) => {
-      editingIndex = idx;
-      const itm = filteredData[idx];
+    window.editRow = (i) => {
+      editingIndex = i;
+      const itm = filteredData[i];
+      document.getElementById('formTitle').textContent = "Edit Data Takjil";
       document.getElementById('inputTanggal').value = itm.tanggal;
       document.getElementById('inputNama').value = itm.nama;
       document.getElementById('inputBlok').value = itm.blok;
@@ -183,29 +261,29 @@
       window.scrollTo({top: 0, behavior: 'smooth'});
     };
 
-    window.deleteRow = async (idx) => {
-      if(!confirm("Hapus data ini?")) return;
+    window.deleteRow = async (i) => {
+      if(!confirm("Yakin ingin menghapus data ini dari Google Sheets?")) return;
       try {
-        const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', rowIndex: filteredData[idx].rowIdx }) });
-        const res = await resp.json();
-        if(res.result === 'success') location.reload();
-      } catch (e) { alert("Gagal hapus!"); }
+        await fetch(SCRIPT_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({ action: 'delete', rowIndex: filteredData[i].rowIdx }) 
+        });
+        alert("Data Terhapus!");
+        location.reload();
+      } catch (e) { alert("Gagal Menghapus!"); }
     };
 
-    // 5. Event Listeners
     document.getElementById('addButton').onclick = () => {
       editingIndex = -1;
+      document.getElementById('formTitle').textContent = "Tambah Data Baru";
       document.getElementById('inputTanggal').value = new Date().toISOString().split('T')[0];
       document.getElementById('formContainer').classList.remove('hidden');
     };
-    document.getElementById('cancelButton').onclick = () => document.getElementById('formContainer').classList.add('hidden');
-    document.getElementById('searchInput').oninput = function() {
-      const v = this.value.toLowerCase();
-      filteredData = allData.filter(d => d.nama.toLowerCase().includes(v) || d.blok.toLowerCase().includes(v));
-      renderTable();
+    
+    document.getElementById('cancelButton').onclick = () => {
+       document.getElementById('formContainer').classList.add('hidden');
     };
 
-    // Jalankan awal
     window.onload = loadData;
   </script>
 </body>

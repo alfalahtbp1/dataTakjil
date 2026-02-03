@@ -6,8 +6,8 @@
   <title>Daftar Takjil - Masjid Al Falah</title>
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-  <script src="https://unpkg.com/jspdf-autotable@latest/dist/jspdf.autotable.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.autotable.min.js"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -40,70 +40,54 @@
       <div class="flex flex-wrap gap-4 mb-6 justify-between items-center no-print">
         <div class="flex flex-wrap gap-2 w-full md:w-auto">
           <input type="text" id="searchInput" placeholder="Cari nama..." class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none w-full md:w-48">
-          
           <select id="filterRtRw" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none w-full md:w-48">
             <option value="all">Semua RT/RW</option>
-            <option value="RT 1 RW 9">RT 1 RW 9</option>
-            <option value="RT 2 RW 9">RT 2 RW 9</option>
-            <option value="RT 3 RW 9">RT 3 RW 9</option>
-            <option value="RT 4 RW 9">RT 4 RW 9</option>
-            <option value="RT 5 RW 9">RT 5 RW 9</option>
-            <option value="RT 1 RW 10">RT 1 RW 10</option>
-            <option value="RT 2 RW 10">RT 2 RW 10</option>
-            <option value="RT 3 RW 10">RT 3 RW 10</option>
+            <option value="RT 1 RW 9">RT 1 RW 9</option><option value="RT 2 RW 9">RT 2 RW 9</option>
+            <option value="RT 3 RW 9">RT 3 RW 9</option><option value="RT 4 RW 9">RT 4 RW 9</option>
+            <option value="RT 5 RW 9">RT 5 RW 9</option><option value="RT 1 RW 10">RT 1 RW 10</option>
+            <option value="RT 2 RW 10">RT 2 RW 10</option><option value="RT 3 RW 10">RT 3 RW 10</option>
             <option value="RT 4 RW 10">RT 4 RW 10</option>
           </select>
         </div>
-
         <div class="flex gap-2 w-full md:w-auto">
-          <button id="addButton" class="flex-1 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold transition shadow-md">+ Data Baru</button>
-          <button id="pdfButton" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 shadow-md">
-            Cetak PDF
-          </button>
+          <button id="addButton" class="flex-1 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold shadow-md transition">+ Data</button>
+          <button id="pdfButton" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold shadow-md transition">Export PDF</button>
         </div>
       </div>
 
-      <div id="formContainer" class="hidden mb-8 p-6 border-2 border-green-200 rounded-xl bg-green-50 no-print shadow-inner">
-        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center uppercase">Form Input Data</h3>
+      <div id="formContainer" class="hidden mb-8 p-6 border-2 border-green-200 rounded-xl bg-green-50 no-print">
+        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center">INPUT DATA TAKJIL</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="block text-sm font-semibold mb-1">Tanggal:</label><input type="date" id="inputTanggal" class="w-full px-3 py-2 border rounded-lg bg-gray-100" readonly></div>
           <div><label class="block text-sm font-semibold mb-1">Nama Lengkap:</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div>
-          <div><label class="block text-sm font-semibold mb-1">Blok/No Rumah:</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div>
+          <div><label class="block text-sm font-semibold mb-1">Blok:</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div>
           <div>
             <label class="block text-sm font-semibold mb-1">RT/RW:</label>
-            <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500">
-                <option value="RT 1 RW 9">RT 1 RW 9</option>
-                <option value="RT 2 RW 9">RT 2 RW 9</option>
-                <option value="RT 3 RW 9">RT 3 RW 9</option>
-                <option value="RT 4 RW 9">RT 4 RW 9</option>
-                <option value="RT 5 RW 9">RT 5 RW 9</option>
-                <option value="RT 1 RW 10">RT 1 RW 10</option>
-                <option value="RT 2 RW 10">RT 2 RW 10</option>
-                <option value="RT 3 RW 10">RT 3 RW 10</option>
+            <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg">
+                <option value="RT 1 RW 9">RT 1 RW 9</option><option value="RT 2 RW 9">RT 2 RW 9</option>
+                <option value="RT 3 RW 9">RT 3 RW 9</option><option value="RT 4 RW 9">RT 4 RW 9</option>
+                <option value="RT 5 RW 9">RT 5 RW 9</option><option value="RT 1 RW 10">RT 1 RW 10</option>
+                <option value="RT 2 RW 10">RT 2 RW 10</option><option value="RT 3 RW 10">RT 3 RW 10</option>
                 <option value="RT 4 RW 10">RT 4 RW 10</option>
             </select>
           </div>
           <div class="md:col-span-2">
             <label class="block text-sm font-semibold mb-1">Jenis Takjil:</label>
             <div class="flex gap-6 p-2 bg-white rounded-lg border">
-              <label class="flex items-center cursor-pointer"><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2"> Mamiri</label>
-              <label class="flex items-center cursor-pointer"><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2"> Mamirat</label>
+              <label class="flex items-center"><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2"> Mamiri</label>
+              <label class="flex items-center"><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2"> Mamirat</label>
             </div>
           </div>
         </div>
         <div class="mt-6 flex gap-3">
-          <button id="saveButton" class="flex-1 bg-green-700 text-white py-3 rounded-lg font-bold hover:bg-green-800 transition">SIMPAN</button>
-          <button id="cancelButton" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-bold hover:bg-gray-500 transition">BATAL</button>
+          <button id="saveButton" class="flex-1 bg-green-700 text-white py-3 rounded-lg font-bold">SIMPAN</button>
+          <button id="cancelButton" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-bold">BATAL</button>
         </div>
       </div>
 
-      <div id="loadingState" class="text-center py-10">
-        <div class="loading-spinner mx-auto mb-2"></div>
-        <p class="text-gray-500">Sinkronisasi Data...</p>
-      </div>
-      
+      <div id="loadingState" class="text-center py-10"><div class="loading-spinner mx-auto"></div></div>
       <div id="tableContainer" class="hidden overflow-x-auto">
-        <table id="mainTable" class="w-full border-collapse">
+        <table class="w-full border-collapse">
           <thead>
             <tr class="table-header">
               <th class="px-4 py-3 text-left">Tanggal</th>
@@ -117,12 +101,10 @@
           <tbody id="tableBody"></tbody>
         </table>
       </div>
-
     </div>
   </main>
 
   <script>
-    // 1. DATA CONFIG
     const SPREADSHEET_ID = "1YjcZeGWDWspuosBjy3VmQDtJHZ64Gbaez3WgHiWuiCQ";
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwa2-28NKYprf_OTtA_OQnuqmyTFZeoMR9g8Fh1WtRnUcyrm1gGWxDiIFiVapblnKA/exec"; 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`;
@@ -131,7 +113,7 @@
     let filteredData = [];
     let editingIndex = -1;
 
-    // 2. RENDER TABLE FUNCTION
+    // RENDER TABEL
     const renderTable = () => {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
@@ -145,20 +127,19 @@
           <td class="px-4 py-3 italic">${item.jenis}</td>
           <td class="px-4 py-3 text-sm">${item.rtrw}</td>
           <td class="px-4 py-3 text-center no-print">
-            <button onclick="editRow(${i})" class="text-blue-600 font-bold mr-2 hover:underline">Edit</button>
-            <button onclick="deleteRow(${i})" class="text-red-600 font-bold hover:underline">Hapus</button>
+            <button onclick="editRow(${i})" class="text-blue-600 font-bold mr-2">Edit</button>
+            <button onclick="deleteRow(${i})" class="text-red-600 font-bold">Hapus</button>
           </td>`;
         tbody.appendChild(tr);
       });
     };
 
-    // 3. LOAD DATA
+    // LOAD DATA
     async function loadData() {
       try {
         const response = await fetch(`${CSV_URL}&cb=${Date.now()}`);
         const text = await response.text();
         const rows = text.split('\n').slice(1);
-        
         allData = rows.filter(r => r.trim()).map((row, idx) => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           return {
@@ -170,94 +151,56 @@
             rtrw: (cols[4] || '').replace(/"/g, '').trim()
           };
         }).filter(item => item.nama);
-
         filteredData = [...allData];
         renderTable();
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('tableContainer').classList.remove('hidden');
-      } catch (err) {
-        document.getElementById('loadingState').innerHTML = `<p class="text-red-500 font-bold">Gagal Muat Data. Refresh!</p>`;
-      }
+      } catch (err) { alert("Gagal muat data!"); }
     }
 
-    // 4. ANTI-GAGAL PDF FUNCTION
+    // FUNGSI PDF (VERSI TERUJI)
     document.getElementById('pdfButton').onclick = function() {
-      const btn = this;
-      
-      // Cek Library
-      if (typeof window.jspdf === 'undefined') {
-        alert("Library PDF sedang dimuat atau terblokir. Tunggu sebentar atau gunakan Firefox.");
-        return;
-      }
-
       try {
+        // Pemanggilan Library yang Benar untuk Versi 2.5.1
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
+        const doc = new jsPDF();
         
         const filterVal = document.getElementById('filterRtRw').value;
         const titleText = filterVal === 'all' ? "REKAP TAKJIL - SEMUA RT/RW" : `REKAP TAKJIL - ${filterVal}`;
 
-        // Desain Header PDF
+        // Header
         doc.setFontSize(18);
         doc.setTextColor(22, 101, 52);
-        doc.text("MASJID AL FALAH", 105, 18, { align: 'center' });
-        
+        doc.text("MASJID AL FALAH", 105, 15, { align: 'center' });
         doc.setFontSize(11);
-        doc.setTextColor(50, 50, 50);
-        doc.text(titleText, 105, 25, { align: 'center' });
-        doc.text("Ramadhan 1447 H / 2026 M", 105, 31, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+        doc.text(titleText, 105, 22, { align: 'center' });
+        doc.text("Ramadhan 1447 H / 2026 M", 105, 28, { align: 'center' });
+
+        const tableBody = filteredData.map((d, i) => [i + 1, d.tanggal, d.nama, d.blok, d.jenis, d.rtrw]);
         
-        doc.setDrawColor(22, 101, 52);
-        doc.line(20, 34, 190, 34);
-
-        // Map Data
-        const rows = filteredData.map((d, i) => [i+1, d.tanggal, d.nama, d.blok, d.jenis, d.rtrw]);
-
-        // Create Table
+        // Panggil autoTable melalui instance doc
         doc.autoTable({
-          startY: 40,
+          startY: 35,
           head: [['No', 'Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
-          body: rows,
+          body: tableBody,
           theme: 'grid',
-          headStyles: { fillColor: [22, 101, 52], halign: 'center' },
-          styles: { fontSize: 9 },
-          columnStyles: { 0: { halign: 'center', cellWidth: 10 } }
+          headStyles: { fillColor: [22, 101, 52] },
+          styles: { fontSize: 9 }
         });
 
-        // Footer Tanda Tangan
         const finalY = doc.lastAutoTable.finalY + 15;
-        if (finalY < 250) { // Pastikan tidak keluar kertas
-            doc.setFontSize(10);
-            doc.text("Dicetak pada: " + new Date().toLocaleDateString('id-ID'), 20, finalY);
-            doc.text("Mengetahui,", 150, finalY);
-            doc.text("Takmir Masjid Al Falah", 150, finalY + 6);
-            doc.text("___________________", 150, finalY + 25);
-        }
+        doc.text("Takmir Masjid Al Falah,", 150, finalY);
+        doc.text("___________________", 150, finalY + 20);
 
-        doc.save(`Rekap_Takjil_${filterVal.replace(/ /g, '_')}.pdf`);
-      } catch (err) {
-        console.error("PDF Error:", err);
-        alert("Terjadi kesalahan teknis saat membuat PDF.");
+        doc.save(`Laporan_Takjil_${filterVal}.pdf`);
+      } catch (e) {
+        console.error("Error PDF:", e);
+        alert("Gagal membuat PDF. Gunakan browser Google Chrome terbaru.");
       }
     };
 
-    // 5. FILTER & SEARCH
-    function applyFilters() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const rt = document.getElementById('filterRtRw').value;
-
-      filteredData = allData.filter(d => {
-        const matchSearch = d.nama.toLowerCase().includes(search) || d.blok.toLowerCase().includes(search);
-        const matchRt = rt === 'all' || d.rtrw === rt;
-        return matchSearch && matchRt;
-      });
-      renderTable();
-    }
-
-    document.getElementById('searchInput').oninput = applyFilters;
-    document.getElementById('filterRtRw').onchange = applyFilters;
-
-    // 6. SAVE DATA
+    // CRUD & EVENT
     document.getElementById('saveButton').onclick = async function() {
       const jenis = document.querySelector('input[name="jenisTakjil"]:checked')?.value;
       const data = {
@@ -267,35 +210,19 @@
         jenis: jenis,
         rtrw: document.getElementById('inputRtRw').value
       };
-
-      if(!data.nama || !data.jenis) return alert("Mohon lengkapi Nama & Jenis!");
-      
-      const btn = this;
-      btn.disabled = true; btn.textContent = "Menyimpan...";
-      
+      if(!data.nama || !data.jenis) return alert("Lengkapi data!");
+      this.disabled = true; this.textContent = "Menyimpan...";
       const action = editingIndex >= 0 ? 'update' : 'create';
       const rowIndex = editingIndex >= 0 ? filteredData[editingIndex].rowIdx : null;
-
       try {
-        const resp = await fetch(SCRIPT_URL, { 
-          method: 'POST', 
-          body: JSON.stringify({ action, data, rowIndex }) 
-        });
-        if(resp.ok) {
-           alert("Data Berhasil Sinkron!");
-           location.reload();
-        }
-      } catch (e) { 
-        alert("Gagal Sinkron!"); 
-        btn.disabled = false; btn.textContent = "SIMPAN"; 
-      }
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action, data, rowIndex }) });
+        location.reload();
+      } catch (e) { alert("Error!"); this.disabled = false; }
     };
 
-    // 7. EDIT & DELETE
     window.editRow = (i) => {
       editingIndex = i;
       const itm = filteredData[i];
-      document.getElementById('formTitle').textContent = "Update Data Takjil";
       document.getElementById('inputTanggal').value = itm.tanggal;
       document.getElementById('inputNama').value = itm.nama;
       document.getElementById('inputBlok').value = itm.blok;
@@ -303,30 +230,31 @@
       const rad = document.querySelector(`input[name="jenisTakjil"][value="${itm.jenis}"]`);
       if(rad) rad.checked = true;
       document.getElementById('formContainer').classList.remove('hidden');
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      window.scrollTo(0,0);
     };
 
     window.deleteRow = async (i) => {
-      if(!confirm("Hapus data ini selamanya?")) return;
-      try {
-        await fetch(SCRIPT_URL, { 
-          method: 'POST', 
-          body: JSON.stringify({ action: 'delete', rowIndex: filteredData[i].rowIdx }) 
-        });
-        location.reload();
-      } catch (e) { alert("Hapus gagal!"); }
+      if(!confirm("Hapus data?")) return;
+      await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', rowIndex: filteredData[i].rowIdx }) });
+      location.reload();
     };
 
     document.getElementById('addButton').onclick = () => {
       editingIndex = -1;
-      document.getElementById('formTitle').textContent = "Input Data Takjil";
       document.getElementById('inputTanggal').value = new Date().toISOString().split('T')[0];
       document.getElementById('formContainer').classList.remove('hidden');
     };
-    
     document.getElementById('cancelButton').onclick = () => document.getElementById('formContainer').classList.add('hidden');
+    
+    function applyFilters() {
+      const s = document.getElementById('searchInput').value.toLowerCase();
+      const r = document.getElementById('filterRtRw').value;
+      filteredData = allData.filter(d => (d.nama.toLowerCase().includes(s) || d.blok.toLowerCase().includes(s)) && (r === 'all' || d.rtrw === r));
+      renderTable();
+    }
+    document.getElementById('searchInput').oninput = applyFilters;
+    document.getElementById('filterRtRw').onchange = applyFilters;
 
-    // INITIAL LOAD
     window.onload = loadData;
   </script>
 </body>

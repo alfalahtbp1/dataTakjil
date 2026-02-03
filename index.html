@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.25/dist/jspdf.plugin.autotable.min.js"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -50,20 +50,20 @@
           </select>
         </div>
         <div class="flex gap-2 w-full md:w-auto">
-          <button id="addButton" class="flex-1 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold shadow-md transition">+ Data Baru</button>
-          <button id="pdfButton" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold shadow-md transition">Export PDF</button>
+          <button id="addButton" class="flex-1 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold shadow-md">+ Tambah</button>
+          <button id="pdfButton" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold shadow-md">Export PDF</button>
         </div>
       </div>
 
       <div id="formContainer" class="hidden mb-8 p-6 border-2 border-green-200 rounded-xl bg-green-50 no-print">
-        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center">INPUT DATA TAKJIL</h3>
+        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center uppercase">Form Takjil</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="block text-sm font-semibold mb-1">Tanggal:</label><input type="date" id="inputTanggal" class="w-full px-3 py-2 border rounded-lg bg-gray-100" readonly></div>
-          <div><label class="block text-sm font-semibold mb-1 text-red-600">Nama Lengkap *</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div>
-          <div><label class="block text-sm font-semibold mb-1 text-red-600">Blok *</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div>
+          <div><label class="block text-sm font-semibold mb-1">Nama Lengkap:</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+          <div><label class="block text-sm font-semibold mb-1">Blok:</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
           <div>
-            <label class="block text-sm font-semibold mb-1 text-red-600">RT/RW *</label>
-            <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+            <label class="block text-sm font-semibold mb-1">RT/RW:</label>
+            <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg">
                 <option value="RT 1 RW 9">RT 1 RW 9</option><option value="RT 2 RW 9">RT 2 RW 9</option>
                 <option value="RT 3 RW 9">RT 3 RW 9</option><option value="RT 4 RW 9">RT 4 RW 9</option>
                 <option value="RT 5 RW 9">RT 5 RW 9</option><option value="RT 1 RW 10">RT 1 RW 10</option>
@@ -72,10 +72,10 @@
             </select>
           </div>
           <div class="md:col-span-2">
-            <label class="block text-sm font-semibold mb-1 text-red-600">Jenis Takjil *</label>
-            <div class="flex gap-6 p-2 bg-white rounded-lg border">
-              <label class="flex items-center cursor-pointer"><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2"> Mamiri</label>
-              <label class="flex items-center cursor-pointer"><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2"> Mamirat</label>
+            <label class="block text-sm font-semibold mb-1">Jenis Takjil:</label>
+            <div class="flex gap-4 p-2 bg-white rounded-lg border">
+              <label><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2"> Mamiri</label>
+              <label><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2"> Mamirat</label>
             </div>
           </div>
         </div>
@@ -85,8 +85,7 @@
         </div>
       </div>
 
-      <div id="loadingState" class="text-center py-10"><div class="loading-spinner mx-auto mb-2"></div><p>Sinkronisasi Database...</p></div>
-      
+      <div id="loadingState" class="text-center py-10"><div class="loading-spinner mx-auto mb-2"></div><p>Sinkronisasi Data...</p></div>
       <div id="tableContainer" class="hidden overflow-x-auto">
         <table id="mainTable" class="w-full border-collapse">
           <thead>
@@ -102,7 +101,6 @@
           <tbody id="tableBody"></tbody>
         </table>
       </div>
-
     </div>
   </main>
 
@@ -115,6 +113,7 @@
     let filteredData = [];
     let editingIndex = -1;
 
+    // Render Tabel
     const renderTable = () => {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
@@ -135,6 +134,7 @@
       });
     };
 
+    // Load Data
     async function loadData() {
       try {
         const response = await fetch(`${CSV_URL}&cb=${Date.now()}`);
@@ -155,25 +155,19 @@
         renderTable();
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('tableContainer').classList.remove('hidden');
-      } catch (err) { document.getElementById('loadingState').innerHTML = "Gagal memuat!"; }
+      } catch (err) { alert("Data gagal dimuat."); }
     }
 
-    // FUNGSI PDF (METODE PLUGIN - PALING AMAN)
+    // PDF Export (Metode Langsung)
     document.getElementById('pdfButton').onclick = function() {
       try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // Cek paksa plugin autotable
-        if (typeof doc.autoTable !== 'function') {
-           alert("Sistem PDF sedang sibuk, tunggu 3 detik lalu klik lagi.");
-           return;
-        }
-
         const filterVal = document.getElementById('filterRtRw').value;
         const titleText = filterVal === 'all' ? "REKAP TAKJIL - SEMUA RT/RW" : `REKAP TAKJIL - ${filterVal}`;
 
-        // Desain Header
+        // Header
         doc.setFontSize(18);
         doc.setTextColor(22, 101, 52);
         doc.text("MASJID AL FALAH", 105, 15, { align: 'center' });
@@ -184,24 +178,48 @@
 
         const bodyData = filteredData.map((d, i) => [i + 1, d.tanggal, d.nama, d.blok, d.jenis, d.rtrw]);
         
-        // Eksekusi AutoTable
-        doc.autoTable({
-          startY: 35,
-          head: [['No', 'Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
-          body: bodyData,
-          theme: 'grid',
-          headStyles: { fillColor: [22, 101, 52], halign: 'center' },
-          styles: { fontSize: 9, cellPadding: 2 }
-        });
+        // Panggil Plugin secara eksplisit
+        if (typeof doc.autoTable !== 'function') {
+           // Jika masih gagal, paksa panggil dari window
+           window.jspdf.jsPDF.API.autoTable.apply(doc, [{
+             startY: 35,
+             head: [['No', 'Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
+             body: bodyData,
+             theme: 'grid',
+             headStyles: { fillColor: [22, 101, 52] }
+           }]);
+        } else {
+           doc.autoTable({
+             startY: 35,
+             head: [['No', 'Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
+             body: bodyData,
+             theme: 'grid',
+             headStyles: { fillColor: [22, 101, 52] }
+           });
+        }
 
-        doc.save(`Laporan_Takjil_${filterVal.replace(/ /g, '_')}.pdf`);
+        const finalY = doc.previousAutoTable.finalY + 15;
+        doc.text("Takmir Masjid Al Falah,", 150, finalY);
+        doc.text("___________________", 150, finalY + 20);
+
+        doc.save(`Rekap_${filterVal}.pdf`);
       } catch (e) {
-        console.error("PDF Fatal Error:", e);
-        alert("Terjadi gangguan sistem PDF. Coba gunakan browser Google Chrome.");
+        console.error(e);
+        alert("Gagal membuat PDF. Coba refresh halaman ini.");
       }
     };
 
-    // CRUD & FILTER
+    // Filter & Search
+    function applyFilters() {
+      const s = document.getElementById('searchInput').value.toLowerCase();
+      const r = document.getElementById('filterRtRw').value;
+      filteredData = allData.filter(d => (d.nama.toLowerCase().includes(s) || d.blok.toLowerCase().includes(s)) && (r === 'all' || d.rtrw === r));
+      renderTable();
+    }
+    document.getElementById('searchInput').oninput = applyFilters;
+    document.getElementById('filterRtRw').onchange = applyFilters;
+
+    // CRUD
     document.getElementById('saveButton').onclick = async function() {
       const jenis = document.querySelector('input[name="jenisTakjil"]:checked')?.value;
       const data = {
@@ -211,8 +229,8 @@
         jenis: jenis,
         rtrw: document.getElementById('inputRtRw').value
       };
-      if(!data.nama || !data.jenis) return alert("Lengkapi data!");
-      this.disabled = true; this.textContent = "Menyimpan...";
+      if(!data.nama || !data.jenis) return alert("Isi Nama & Jenis!");
+      this.disabled = true; this.textContent = "Proses...";
       const action = editingIndex >= 0 ? 'update' : 'create';
       const rowIndex = editingIndex >= 0 ? filteredData[editingIndex].rowIdx : null;
       try {
@@ -246,15 +264,6 @@
       document.getElementById('formContainer').classList.remove('hidden');
     };
     document.getElementById('cancelButton').onclick = () => document.getElementById('formContainer').classList.add('hidden');
-    
-    function applyFilters() {
-      const s = document.getElementById('searchInput').value.toLowerCase();
-      const r = document.getElementById('filterRtRw').value;
-      filteredData = allData.filter(d => (d.nama.toLowerCase().includes(s) || d.blok.toLowerCase().includes(s)) && (r === 'all' || d.rtrw === r));
-      renderTable();
-    }
-    document.getElementById('searchInput').oninput = applyFilters;
-    document.getElementById('filterRtRw').onchange = applyFilters;
 
     window.onload = loadData;
   </script>

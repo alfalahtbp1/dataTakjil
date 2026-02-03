@@ -5,13 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daftar Takjil - Masjid Al Falah</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.autotable.min.js"></script>
+  
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Poppins', sans-serif; }
     .gradient-header { background: linear-gradient(to right, #166534, #86efac, #166534); }
     .table-header { background-color: #166534; color: white; }
+    .loading-spinner {
+      width: 40px; height: 40px; border: 4px solid #f3f3f3;
+      border-top: 4px solid #166534; border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @media print { .no-print { display: none; } }
   </style>
 </head>
@@ -48,15 +56,15 @@
         </div>
 
         <div class="flex gap-2 w-full md:w-auto">
-          <button id="addButton" class="flex-1 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold transition">+ Tambah Data</button>
-          <button id="pdfButton" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2">
+          <button id="addButton" class="flex-1 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold transition">+ Data Baru</button>
+          <button id="pdfButton" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition">
             Export PDF
           </button>
         </div>
       </div>
 
       <div id="formContainer" class="hidden mb-8 p-6 border-2 border-green-200 rounded-xl bg-green-50 no-print">
-        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center">Form Input Takjil</h3>
+        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center uppercase">Input Data Takjil</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="block text-sm font-semibold mb-1">Tanggal:</label><input type="date" id="inputTanggal" class="w-full px-3 py-2 border rounded-lg bg-gray-100" readonly></div>
           <div><label class="block text-sm font-semibold mb-1">Nama Lengkap:</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div>
@@ -78,18 +86,21 @@
           <div class="md:col-span-2">
             <label class="block text-sm font-semibold mb-1">Jenis Takjil:</label>
             <div class="flex gap-6 p-2 bg-white rounded-lg border">
-              <label class="flex items-center"><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2"> Mamiri</label>
-              <label class="flex items-center"><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2"> Mamirat</label>
+              <label class="flex items-center cursor-pointer"><input type="radio" name="jenisTakjil" value="Mamiri" class="mr-2"> Mamiri</label>
+              <label class="flex items-center cursor-pointer"><input type="radio" name="jenisTakjil" value="Mamirat" class="mr-2"> Mamirat</label>
             </div>
           </div>
         </div>
         <div class="mt-6 flex gap-3">
-          <button id="saveButton" class="flex-1 bg-green-700 text-white py-3 rounded-lg font-bold">Simpan ke Sheets</button>
-          <button id="cancelButton" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-bold">Batal</button>
+          <button id="saveButton" class="flex-1 bg-green-700 text-white py-3 rounded-lg font-bold hover:bg-green-800 transition">Simpan Data</button>
+          <button id="cancelButton" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-bold hover:bg-gray-500 transition">Batal</button>
         </div>
       </div>
 
-      <div id="loadingState" class="text-center py-10"><div class="loading-spinner mx-auto mb-2"></div><p>Menghubungkan ke Google Sheets...</p></div>
+      <div id="loadingState" class="text-center py-10">
+        <div class="loading-spinner mx-auto mb-2"></div>
+        <p class="text-gray-500">Menghubungkan ke Database...</p>
+      </div>
       
       <div id="tableContainer" class="hidden overflow-x-auto">
         <table id="mainTable" class="w-full border-collapse">
@@ -111,7 +122,7 @@
   </main>
 
   <script>
-    // KONFIGURASI
+    // 1. KONFIGURASI
     const SPREADSHEET_ID = "1YjcZeGWDWspuosBjy3VmQDtJHZ64Gbaez3WgHiWuiCQ";
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwa2-28NKYprf_OTtA_OQnuqmyTFZeoMR9g8Fh1WtRnUcyrm1gGWxDiIFiVapblnKA/exec"; 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`;
@@ -120,13 +131,13 @@
     let filteredData = [];
     let editingIndex = -1;
 
-    // RENDER TABEL
+    // 2. RENDER TABEL KE LAYAR
     const renderTable = () => {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
       filteredData.forEach((item, i) => {
         const tr = document.createElement('tr');
-        tr.className = i % 2 === 0 ? 'bg-white border-b' : 'bg-green-50 border-b';
+        tr.className = i % 2 === 0 ? 'bg-white border-b hover:bg-green-50' : 'bg-green-50 border-b hover:bg-green-100';
         tr.innerHTML = `
           <td class="px-4 py-3 text-sm">${item.tanggal}</td>
           <td class="px-4 py-3 font-bold text-green-900">${item.nama}</td>
@@ -134,14 +145,14 @@
           <td class="px-4 py-3 italic">${item.jenis}</td>
           <td class="px-4 py-3 text-sm">${item.rtrw}</td>
           <td class="px-4 py-3 text-center no-print">
-            <button onclick="editRow(${i})" class="text-blue-600 font-bold mr-2">Edit</button>
-            <button onclick="deleteRow(${i})" class="text-red-600 font-bold">Hapus</button>
+            <button onclick="editRow(${i})" class="text-blue-600 font-bold mr-2 hover:underline">Edit</button>
+            <button onclick="deleteRow(${i})" class="text-red-600 font-bold hover:underline">Hapus</button>
           </td>`;
         tbody.appendChild(tr);
       });
     };
 
-    // LOAD DATA DARI SHEETS
+    // 3. LOAD DATA AWAL
     async function loadData() {
       try {
         const response = await fetch(`${CSV_URL}&cb=${Date.now()}`);
@@ -165,39 +176,67 @@
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('tableContainer').classList.remove('hidden');
       } catch (err) {
-        document.getElementById('loadingState').innerHTML = `<p class="text-red-500 font-bold">Koneksi Gagal! Periksa Internet Anda.</p>`;
+        document.getElementById('loadingState').innerHTML = `<p class="text-red-500 font-bold">Koneksi Error! Refresh halaman.</p>`;
       }
     }
 
-    // FUNGSI PDF
+    // 4. FUNGSI EXPORT PDF (PERBAIKAN)
     document.getElementById('pdfButton').onclick = function() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      const filterValue = document.getElementById('filterRtRw').value;
-      const titleText = filterValue === 'all' ? "REKAP TAKJIL - SEMUA RT/RW" : `REKAP TAKJIL - ${filterValue}`;
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        const filterValue = document.getElementById('filterRtRw').value;
+        const titleText = filterValue === 'all' ? "REKAP TAKJIL - SEMUA RT/RW" : `REKAP TAKJIL - ${filterValue}`;
 
-      doc.setFontSize(16);
-      doc.text("MASJID AL FALAH", 105, 15, { align: 'center' });
-      doc.setFontSize(12);
-      doc.text(titleText, 105, 22, { align: 'center' });
-      doc.text("Ramadhan 1447 H / 2026 M", 105, 28, { align: 'center' });
+        // Header PDF
+        doc.setFontSize(18);
+        doc.setTextColor(22, 101, 52);
+        doc.text("MASJID AL FALAH", 105, 20, { align: 'center' });
+        
+        doc.setFontSize(11);
+        doc.setTextColor(80, 80, 80);
+        doc.text(titleText, 105, 27, { align: 'center' });
+        doc.text("Ramadhan 1447 H / 2026 M", 105, 33, { align: 'center' });
+        
+        doc.setDrawColor(22, 101, 52);
+        doc.line(20, 36, 190, 36);
 
-      const tableRows = filteredData.map(item => [item.tanggal, item.nama, item.blok, item.jenis, item.rtrw]);
-      
-      doc.autoTable({
-        startY: 35,
-        head: [['Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
-        body: tableRows,
-        theme: 'grid',
-        headStyles: { fillColor: [22, 101, 52] },
-        styles: { fontSize: 9 }
-      });
+        // Data Laporan
+        const tableRows = filteredData.map((item, index) => [
+            index + 1,
+            item.tanggal,
+            item.nama,
+            item.blok,
+            item.jenis,
+            item.rtrw
+        ]);
 
-      doc.save(`Takjil_AlFalah_${filterValue.replace(/ /g, '_')}.pdf`);
+        doc.autoTable({
+          startY: 42,
+          head: [['No', 'Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
+          body: tableRows,
+          theme: 'grid',
+          headStyles: { fillColor: [22, 101, 52], halign: 'center' },
+          styles: { fontSize: 9, cellPadding: 2 },
+          columnStyles: { 0: { halign: 'center' } }
+        });
+
+        // Tanda Tangan
+        const finalY = doc.lastAutoTable.finalY + 15;
+        doc.setFontSize(10);
+        doc.text("Mengetahui,", 150, finalY);
+        doc.text("Takmir Masjid Al Falah", 150, finalY + 5);
+        doc.text("___________________", 150, finalY + 25);
+
+        doc.save(`Laporan_Takjil_${filterValue.replace(/ /g, '_')}.pdf`);
+      } catch (e) {
+        alert("Gagal membuat PDF. Pastikan koneksi internet stabil.");
+        console.error(e);
+      }
     };
 
-    // FILTER & SEARCH
+    // 5. FILTER & SEARCH
     function applyFilters() {
       const searchVal = document.getElementById('searchInput').value.toLowerCase();
       const rtVal = document.getElementById('filterRtRw').value;
@@ -213,7 +252,7 @@
     document.getElementById('searchInput').oninput = applyFilters;
     document.getElementById('filterRtRw').onchange = applyFilters;
 
-    // SIMPAN DATA (CREATE / UPDATE)
+    // 6. SIMPAN DATA
     document.getElementById('saveButton').onclick = async function() {
       const jenis = document.querySelector('input[name="jenisTakjil"]:checked')?.value;
       const data = {
@@ -227,7 +266,7 @@
       if(!data.nama || !data.jenis) return alert("Nama dan Jenis Takjil harus diisi!");
       
       const btn = this;
-      btn.disabled = true; btn.textContent = "Menyimpan...";
+      btn.disabled = true; btn.textContent = "Sedang Menyimpan...";
       
       const action = editingIndex >= 0 ? 'update' : 'create';
       const rowIndex = editingIndex >= 0 ? filteredData[editingIndex].rowIdx : null;
@@ -238,15 +277,16 @@
           body: JSON.stringify({ action, data, rowIndex }) 
         });
         if(resp.ok) {
-           alert("Data Berhasil Disimpan!");
+           alert("Data Berhasil Sinkron!");
            location.reload();
         }
       } catch (e) { 
-        alert("Gagal Terhubung ke Server!"); 
-        btn.disabled = false; btn.textContent = "Simpan ke Sheets"; 
+        alert("Gagal kirim data."); 
+        btn.disabled = false; btn.textContent = "Simpan Data"; 
       }
     };
 
+    // 7. EDIT & DELETE
     window.editRow = (i) => {
       editingIndex = i;
       const itm = filteredData[i];
@@ -262,15 +302,14 @@
     };
 
     window.deleteRow = async (i) => {
-      if(!confirm("Yakin ingin menghapus data ini dari Google Sheets?")) return;
+      if(!confirm("Hapus data dari Google Sheets?")) return;
       try {
         await fetch(SCRIPT_URL, { 
           method: 'POST', 
           body: JSON.stringify({ action: 'delete', rowIndex: filteredData[i].rowIdx }) 
         });
-        alert("Data Terhapus!");
         location.reload();
-      } catch (e) { alert("Gagal Menghapus!"); }
+      } catch (e) { alert("Gagal hapus!"); }
     };
 
     document.getElementById('addButton').onclick = () => {
@@ -280,9 +319,7 @@
       document.getElementById('formContainer').classList.remove('hidden');
     };
     
-    document.getElementById('cancelButton').onclick = () => {
-       document.getElementById('formContainer').classList.add('hidden');
-    };
+    document.getElementById('cancelButton').onclick = () => document.getElementById('formContainer').classList.add('hidden');
 
     window.onload = loadData;
   </script>

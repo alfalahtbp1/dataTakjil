@@ -5,22 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daftar Takjil - Masjid Al Falah</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.25/dist/jspdf.plugin.autotable.min.js"></script>
-  
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Poppins', sans-serif; }
     .gradient-header { background: linear-gradient(to right, #166534, #86efac, #166534); }
     .table-header { background-color: #166534; color: white; }
+    
+    /* CSS KHUSUS UNTUK CETAK/PDF */
+    @media print {
+      .no-print { display: none !important; }
+      body { background-color: white !important; padding: 0 !important; }
+      .print-only { display: block !important; }
+      .shadow-xl { shadow: none !important; border: 1px solid #ccc !important; }
+      .table-header { background-color: #166534 !important; color: white !important; -webkit-print-color-adjust: exact; }
+      tr:nth-child(even) { background-color: #f0fdf4 !important; -webkit-print-color-adjust: exact; }
+    }
+    
     .loading-spinner {
       width: 40px; height: 40px; border: 4px solid #f3f3f3;
       border-top: 4px solid #166534; border-radius: 50%;
       animation: spin 1s linear infinite;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @media print { .no-print { display: none; } }
   </style>
 </head>
 <body class="bg-green-50 min-h-screen">
@@ -29,10 +35,17 @@
     <div class="flex justify-center mb-3">
       <img src="https://i.ibb.co.com/JjZqzhR2/logo-al-falah.png" alt="Logo" class="h-24 w-24 object-contain">
     </div>
-    <h1 class="text-3xl font-bold text-yellow-300">MASJID AL FALAH</h1>
+    <h1 class="text-3xl font-bold text-yellow-300 uppercase">Masjid Al Falah</h1>
     <p class="text-xl">Daftar Warga Pemberi Takjil Ramadhan</p>
-    <p class="mt-2 text-sm bg-green-800 text-white inline-block px-4 py-1 rounded-full">1447 H / 2026 M</p>
+    <p class="mt-2 text-sm bg-green-800 text-white inline-block px-4 py-1 rounded-full text-xs">1447 H / 2026 M</p>
   </header>
+
+  <div class="hidden print-only text-center mb-6 pt-4">
+    <h1 class="text-2xl font-bold text-green-800">MASJID AL FALAH</h1>
+    <p class="text-lg font-semibold" id="printTitle">REKAP DAFTAR PEMBERI TAKJIL</p>
+    <p class="text-sm italic">Ramadhan 1447 H / 2026 M</p>
+    <hr class="mt-4 border-t-2 border-green-800">
+  </div>
 
   <main class="max-w-7xl mx-auto p-4 md:p-6">
     <div class="bg-white rounded-xl shadow-xl p-6">
@@ -51,16 +64,16 @@
         </div>
         <div class="flex gap-2 w-full md:w-auto">
           <button id="addButton" class="flex-1 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold shadow-md">+ Tambah</button>
-          <button id="pdfButton" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold shadow-md">Export PDF</button>
+          <button id="printBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold shadow-md">Export PDF / Cetak</button>
         </div>
       </div>
 
       <div id="formContainer" class="hidden mb-8 p-6 border-2 border-green-200 rounded-xl bg-green-50 no-print">
-        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center uppercase">Form Takjil</h3>
+        <h3 id="formTitle" class="text-xl font-bold text-green-800 mb-4 text-center uppercase">Form Input Takjil</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="block text-sm font-semibold mb-1">Tanggal:</label><input type="date" id="inputTanggal" class="w-full px-3 py-2 border rounded-lg bg-gray-100" readonly></div>
-          <div><label class="block text-sm font-semibold mb-1">Nama Lengkap:</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
-          <div><label class="block text-sm font-semibold mb-1">Blok:</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+          <div><label class="block text-sm font-semibold mb-1">Nama Lengkap:</label><input type="text" id="inputNama" class="w-full px-3 py-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-semibold mb-1">Blok/No:</label><input type="text" id="inputBlok" class="w-full px-3 py-2 border rounded-lg"></div>
           <div>
             <label class="block text-sm font-semibold mb-1">RT/RW:</label>
             <select id="inputRtRw" class="w-full px-3 py-2 border rounded-lg">
@@ -85,22 +98,38 @@
         </div>
       </div>
 
-      <div id="loadingState" class="text-center py-10"><div class="loading-spinner mx-auto mb-2"></div><p>Sinkronisasi Data...</p></div>
+      <div id="loadingState" class="text-center py-10 no-print">
+        <div class="loading-spinner mx-auto mb-2"></div>
+        <p>Memuat database...</p>
+      </div>
+
       <div id="tableContainer" class="hidden overflow-x-auto">
-        <table id="mainTable" class="w-full border-collapse">
+        <table class="w-full border-collapse">
           <thead>
             <tr class="table-header">
-              <th class="px-4 py-3 text-left">Tanggal</th>
-              <th class="px-4 py-3 text-left">Nama</th>
-              <th class="px-4 py-3 text-left">Blok</th>
-              <th class="px-4 py-3 text-left">Jenis</th>
-              <th class="px-4 py-3 text-left">RT/RW</th>
-              <th class="px-4 py-3 text-center no-print">Aksi</th>
+              <th class="px-4 py-3 text-left border">Tgl</th>
+              <th class="px-4 py-3 text-left border">Nama</th>
+              <th class="px-4 py-3 text-left border">Blok</th>
+              <th class="px-4 py-3 text-left border">Jenis</th>
+              <th class="px-4 py-3 text-left border">RT/RW</th>
+              <th class="px-4 py-3 text-center border no-print">Aksi</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
         </table>
+
+        <div class="hidden print-only mt-10">
+          <div class="flex justify-end pr-10">
+            <div class="text-center">
+              <p>Mengetahui,</p>
+              <p class="font-bold">Takmir Masjid Al Falah</p>
+              <div class="h-20"></div>
+              <p>____________________</p>
+            </div>
+          </div>
+        </div>
       </div>
+
     </div>
   </main>
 
@@ -113,20 +142,19 @@
     let filteredData = [];
     let editingIndex = -1;
 
-    // Render Tabel
     const renderTable = () => {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
       filteredData.forEach((item, i) => {
         const tr = document.createElement('tr');
-        tr.className = i % 2 === 0 ? 'bg-white border-b' : 'bg-green-50 border-b';
+        tr.className = i % 2 === 0 ? 'bg-white border' : 'bg-green-50 border';
         tr.innerHTML = `
-          <td class="px-4 py-3 text-sm">${item.tanggal}</td>
-          <td class="px-4 py-3 font-bold text-green-900">${item.nama}</td>
-          <td class="px-4 py-3 text-sm">${item.blok}</td>
-          <td class="px-4 py-3 italic">${item.jenis}</td>
-          <td class="px-4 py-3 text-sm">${item.rtrw}</td>
-          <td class="px-4 py-3 text-center no-print">
+          <td class="px-4 py-3 text-sm border">${item.tanggal}</td>
+          <td class="px-4 py-3 font-bold text-green-900 border">${item.nama}</td>
+          <td class="px-4 py-3 text-sm border">${item.blok}</td>
+          <td class="px-4 py-3 italic border">${item.jenis}</td>
+          <td class="px-4 py-3 text-sm border">${item.rtrw}</td>
+          <td class="px-4 py-3 text-center border no-print">
             <button onclick="editRow(${i})" class="text-blue-600 font-bold mr-2">Edit</button>
             <button onclick="deleteRow(${i})" class="text-red-600 font-bold">Hapus</button>
           </td>`;
@@ -134,7 +162,6 @@
       });
     };
 
-    // Load Data
     async function loadData() {
       try {
         const response = await fetch(`${CSV_URL}&cb=${Date.now()}`);
@@ -155,61 +182,18 @@
         renderTable();
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('tableContainer').classList.remove('hidden');
-      } catch (err) { alert("Data gagal dimuat."); }
+      } catch (err) { alert("Error database!"); }
     }
 
-    // PDF Export (Metode Langsung)
-    document.getElementById('pdfButton').onclick = function() {
-      try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        const filterVal = document.getElementById('filterRtRw').value;
-        const titleText = filterVal === 'all' ? "REKAP TAKJIL - SEMUA RT/RW" : `REKAP TAKJIL - ${filterVal}`;
-
-        // Header
-        doc.setFontSize(18);
-        doc.setTextColor(22, 101, 52);
-        doc.text("MASJID AL FALAH", 105, 15, { align: 'center' });
-        doc.setFontSize(11);
-        doc.setTextColor(0, 0, 0);
-        doc.text(titleText, 105, 22, { align: 'center' });
-        doc.text("Ramadhan 1447 H / 2026 M", 105, 28, { align: 'center' });
-
-        const bodyData = filteredData.map((d, i) => [i + 1, d.tanggal, d.nama, d.blok, d.jenis, d.rtrw]);
-        
-        // Panggil Plugin secara eksplisit
-        if (typeof doc.autoTable !== 'function') {
-           // Jika masih gagal, paksa panggil dari window
-           window.jspdf.jsPDF.API.autoTable.apply(doc, [{
-             startY: 35,
-             head: [['No', 'Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
-             body: bodyData,
-             theme: 'grid',
-             headStyles: { fillColor: [22, 101, 52] }
-           }]);
-        } else {
-           doc.autoTable({
-             startY: 35,
-             head: [['No', 'Tanggal', 'Nama', 'Blok', 'Jenis', 'RT/RW']],
-             body: bodyData,
-             theme: 'grid',
-             headStyles: { fillColor: [22, 101, 52] }
-           });
-        }
-
-        const finalY = doc.previousAutoTable.finalY + 15;
-        doc.text("Takmir Masjid Al Falah,", 150, finalY);
-        doc.text("___________________", 150, finalY + 20);
-
-        doc.save(`Rekap_${filterVal}.pdf`);
-      } catch (e) {
-        console.error(e);
-        alert("Gagal membuat PDF. Coba refresh halaman ini.");
-      }
+    // JURUS PAMUNGKAS: PRINT KE PDF BAWAAN BROWSER
+    document.getElementById('printBtn').onclick = () => {
+      const rtVal = document.getElementById('filterRtRw').value;
+      const title = rtVal === 'all' ? "REKAP TAKJIL SEMUA RT/RW" : `REKAP TAKJIL - ${rtVal}`;
+      document.getElementById('printTitle').innerText = title;
+      window.print();
     };
 
-    // Filter & Search
+    // SEARCH & FILTER
     function applyFilters() {
       const s = document.getElementById('searchInput').value.toLowerCase();
       const r = document.getElementById('filterRtRw').value;
@@ -219,7 +203,7 @@
     document.getElementById('searchInput').oninput = applyFilters;
     document.getElementById('filterRtRw').onchange = applyFilters;
 
-    // CRUD
+    // SAVE & CRUD
     document.getElementById('saveButton').onclick = async function() {
       const jenis = document.querySelector('input[name="jenisTakjil"]:checked')?.value;
       const data = {
@@ -229,7 +213,7 @@
         jenis: jenis,
         rtrw: document.getElementById('inputRtRw').value
       };
-      if(!data.nama || !data.jenis) return alert("Isi Nama & Jenis!");
+      if(!data.nama || !data.jenis) return alert("Lengkapi data!");
       this.disabled = true; this.textContent = "Proses...";
       const action = editingIndex >= 0 ? 'update' : 'create';
       const rowIndex = editingIndex >= 0 ? filteredData[editingIndex].rowIdx : null;
